@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Preferencias Personales</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('https://www.example.com/background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 1200px;
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            gap: 20px;
+        }
+        .form-container, .responses-container {
+            flex: 1;
+            padding: 10px;
+        }
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            background: url('https://www.example.com/banner.jpg') no-repeat center center;
+            background-size: cover;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 20px;
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 20px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #357ABD;
+        }
+        .response-item {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .response-item p {
+            margin: 5px 0;
+        }
+        .responses-container h2 {
+            text-align: center;
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+    </style>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>🌟 Encuesta de Preferencias Personales 🌟</h1>
+            <form id="surveyForm">
+                <div class="question">
+                    <label for="color">1. ¿Cuál es tu color favorito?</label>
+                    <textarea id="color" name="color" placeholder="Responde aquí..."></textarea>
+                </div>
+                <div class="question">
+                    <label for="anime">2. ¿Te gusta el anime? ¿Por qué sí o por qué no?</label>
+                    <textarea id="anime" name="anime" placeholder="Responde aquí..."></textarea>
+                </div>
+                <div class="question">
+                    <label for="anime_fav">3. Si respondiste "sí" a la pregunta anterior, ¿cuál es tu anime favorito y por qué?</label>
+                    <textarea id="anime_fav" name="anime_fav" placeholder="Responde aquí..."></textarea>
+                </div>
+                <div class="question">
+                    <label for="hobby">4. ¿Tienes algún pasatiempo o actividad que te apasione? Cuéntanos más sobre ello.</label>
+                    <textarea id="hobby" name="hobby" placeholder="Responde aquí..."></textarea>
+                </div>
+                <div class="question">
+                    <label for="book_movie">5. ¿Cuál es tu libro o película favorita y qué es lo que más te gusta de ella?</label>
+                    <textarea id="book_movie" name="book_movie" placeholder="Responde aquí..."></textarea>
+                </div>
+                <button type="submit">Enviar Respuestas</button>
+            </form>
+        </div>
+        <div class="responses-container">
+            <h2>Respuestas de Otros</h2>
+            <div id="responses"></div>
+        </div>
+    </div>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROJECT_ID.firebaseapp.com",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_PROJECT_ID.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Función para enviar respuestas
+        document.getElementById('surveyForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const color = document.getElementById('color').value;
+            const anime = document.getElementById('anime').value;
+            const anime_fav = document.getElementById('anime_fav').value;
+            const hobby = document.getElementById('hobby').value;
+            const book_movie = document.getElementById('book_movie').value;
+
+            try {
+                await db.collection('responses').add({
+                    color,
+                    anime,
+                    anime_fav,
+                    hobby,
+                    book_movie,
+                    timestamp: new Date()
+                });
+                document.getElementById('surveyForm').reset();
+                alert('¡Gracias por tu respuesta!');
+            } catch (error) {
+                console.error("Error al enviar la respuesta: ", error);
+                alert('Hubo un error al enviar tu respuesta. Por favor, inténtalo de nuevo.');
+            }
+        });
+
+        // Función para mostrar respuestas
+        db.collection('responses').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+            const responsesContainer = document.getElementById('responses');
+            responsesContainer.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                responsesContainer.innerHTML += `
+                    <div class="response-item">
+                        <p><strong>Color Favorito:</strong> ${data.color}</p>
+                        <p><strong>¿Te gusta el anime?:</strong> ${data.anime}</p>
+                        <p><strong>Anime Favorito:</strong> ${data.anime_fav}</p>
+                        <p><strong>Pasatiempo:</strong> ${data.hobby}</p>
+                        <p><strong>Libro/Película Favorita:</strong> ${data.book_movie}</p>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
